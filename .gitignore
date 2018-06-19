@@ -1,0 +1,16 @@
+###################
+# Unreal dll's
+###################
+*/Build
+*_BuiltData.uasset
+*/Binaries
+*/DerivedDataCache
+*/Intermediate
+*/Saved
+BuildingEscape/Content/StarterContent/
+
+###################
+# VS Re-generatable
+###################
+*.VC.db
+*.VC.opendb
