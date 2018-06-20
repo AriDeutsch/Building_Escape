@@ -1,5 +1,5 @@
 ###################
-# Unreal dll's
+# Unreal dll's #
 ###################
 */Build
 *_BuiltData.uasset
@@ -9,8 +9,9 @@
 */Saved
 BuildingEscape/Content/StarterContent/
 
-###################
-# VS Re-generatable
-###################
+#####################
+# VS Re-generatable #
+#####################
 *.VC.db
 *.VC.opendb
+BuildingEscape/.vs/
