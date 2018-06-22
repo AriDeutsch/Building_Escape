@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TriggerVolume.h"
 #include "Components/ActorComponent.h"
 #include "OpenDoor.generated.h"
 
@@ -25,5 +26,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		
+private:
 	
+	UPROPERTY(VisibleAnywhere)float DoorSwingAngle = 90.0;
+
+	UPROPERTY(EditAnywhere)ATriggerVolume * PressurePlate;
 };
