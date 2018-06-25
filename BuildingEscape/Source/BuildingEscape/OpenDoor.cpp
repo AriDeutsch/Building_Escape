@@ -20,7 +20,10 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Owner = GetOwner();
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+	z = sin(SwingAngle / 2);
+	w = cos(SwingAngle / 2);
 
 }
 
@@ -33,19 +36,29 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	if (PressurePlate->IsOverlappingActor(ActorThatOpens))
 	{
 		OpenDoor();
+		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
+
+	//Check if time to close door
+	else if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime >= DoorCloseDelay)
+	{
+		CloseDoor();
+	}
+	
 }
 
 
 void UOpenDoor::OpenDoor()
 {
-	//FString ownerRot = GetOwner()->GetActorRotation().ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("Door angle is %s\n"), *ownerRot);
+	
+	Owner->SetActorRotation(FQuat(0.f,0.f,z,w));
+	//Or I can use: Owner->SetActorRotation(FRotator(0.f, SwingAngle, 0.f));
+}
 
-	FQuat _90DegRot = FQuat(0, 0, 1 / sqrt(2), 1 / sqrt(2));
 
-	GetOwner()->SetActorRelativeRotation(_90DegRot);
-
-	//ownerRot = GetOwner()->GetActorRotation().ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("Door angle is %s\n"), *ownerRot);
+//Changes the sign of the angle of the OpenDoor function
+void UOpenDoor::CloseDoor()
+{
+	Owner->SetActorRotation(FQuat(0.f, 0.f, 0.f, 1.f));
+	//Or I can use: Owner->SetActorRotation(FRotator(0.f, 0.f, 0.f));
 }

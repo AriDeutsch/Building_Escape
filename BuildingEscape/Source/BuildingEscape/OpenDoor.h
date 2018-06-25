@@ -20,8 +20,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 	void OpenDoor();
+	void CloseDoor();
 
 public:	
 	// Called every frame
@@ -30,9 +30,28 @@ public:
 		
 private:
 	
-	UPROPERTY(VisibleAnywhere)float DoorSwingAngle = 90.0;
+	UPROPERTY(EditAnywhere)float SwingAngle = 90.f;
+	
+	/*
+	Quaternion inputs definition:
+	SwingAngle is in radians
+	x = RotationAxis.x * sin(SwingAngle / 2)
+	y = RotationAxis.y * sin(SwingAngle / 2)
+	z = RotationAxis.z * sin(SwingAngle / 2)
+	w = cos(SwingAngle / 2)
+	*/
+	float z;
+	float w;
 
 	UPROPERTY(EditAnywhere)ATriggerVolume * PressurePlate;
 
+	UPROPERTY(EditAnywhere)float DoorCloseDelay = 1.f;
+
+	UPROPERTY(EditAnywhere)bool IsOwnerGrabbable;
+
+	float LastDoorOpenTime;
+
 	AActor* ActorThatOpens;
+
+	AActor* Owner;
 };
