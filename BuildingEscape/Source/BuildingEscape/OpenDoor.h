@@ -31,7 +31,7 @@ public:
 private:
 	
 	UPROPERTY(EditAnywhere)float SwingAngle = 90.f;
-	
+	float z, w;
 	/*
 	Quaternion inputs definition:
 	SwingAngle is in radians
@@ -40,8 +40,7 @@ private:
 	z = RotationAxis.z * sin(SwingAngle / 2)
 	w = cos(SwingAngle / 2)
 	*/
-	float z;
-	float w;
+	
 
 	UPROPERTY(EditAnywhere)ATriggerVolume * PressurePlate;
 

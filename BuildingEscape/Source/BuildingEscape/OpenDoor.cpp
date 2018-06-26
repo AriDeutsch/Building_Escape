@@ -22,8 +22,6 @@ void UOpenDoor::BeginPlay()
 
 	Owner = GetOwner();
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
-	z = sin(SwingAngle / 2);
-	w = cos(SwingAngle / 2);
 
 }
 
@@ -32,7 +30,6 @@ void UOpenDoor::BeginPlay()
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	if (PressurePlate->IsOverlappingActor(ActorThatOpens))
 	{
 		OpenDoor();
@@ -50,9 +47,12 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::OpenDoor()
 {
-	
+
+	z = sinf((SwingAngle*2*PI/360.f) / 2.f);
+	w = cosf((SwingAngle*2*PI/360.f) / 2.f);
 	Owner->SetActorRotation(FQuat(0.f,0.f,z,w));
-	//Or I can use: Owner->SetActorRotation(FRotator(0.f, SwingAngle, 0.f));
+	//Owner->SetActorRotation(FRotator(0.f, SwingAngle, 0.f));
+	
 }
 
 
