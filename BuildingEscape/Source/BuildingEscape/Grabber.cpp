@@ -24,7 +24,6 @@ void UGrabber::BeginPlay()
 	FindPhysicsHandleComponent();
 	FindAndSortInput();
 	
-	
 }
 
 
@@ -35,6 +34,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	// if the physics handle component is attached
 	// move grabbed object every frame
+	GrabbedObject = GetFirstPhysicsBodyInReach();
+	if (GrabbedObject)
+	{
+		PhysicsHandle->SetTargetLocation((GetLineTrace().EndPoint-GetLineTrace().StartPoint)/2);
+	}
+
 }
 
 
@@ -59,50 +64,58 @@ void UGrabber::FindAndSortInput()
 	}
 }
 
-const FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
+const   UGrabber::TraceInfo UGrabber::GetLineTrace() const
 {
-	/// Declare view point variables
-	FVector playerViewLoc;
+	///Initialise variables
 	FRotator playerViewRot;
-
-	//return variable
-	FHitResult hitResult; 
-
+	TraceInfo Trace{ FVector(0.f,0.f,0.f), FVector(0.f,0.f,0.f) };
+	
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		RETURN_RESULT playerViewLoc,
+		RETURN_RESULT Trace.StartPoint,
 		RETURN_RESULT playerViewRot
 	);
 
-	FVector LineTraceEndPoint = playerViewLoc + Reach * playerViewRot.Vector();
+	Trace.EndPoint = Trace.StartPoint + Reach * playerViewRot.Vector();
+
+	return Trace;
+}
+
+AActor* UGrabber::GetFirstPhysicsBodyInReach() const
+{
+	//return variable
+	FHitResult hitResult;
 
 	/// Ray-cast out to 'LineTraceEndPoint' on every tick
 	GetWorld()->LineTraceSingleByObjectType(
 		RETURN_RESULT hitResult,
-		playerViewLoc,
-		LineTraceEndPoint,
+		GetLineTrace().StartPoint,
+		GetLineTrace().EndPoint,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
 	);
-	return hitResult;
+	return hitResult.GetActor();
 }
 
 void UGrabber::Grab()
 {
-	FHitResult GrabbedObject = GetFirstPhysicsBodyInReach();
-	if (GrabbedObject.GetActor())
+	AActor* GrabbedObject = GetFirstPhysicsBodyInReach();
+	if (GrabbedObject)
 	{
 		///...Attach
-		UE_LOG(LogTemp, Warning, TEXT("%s grabbed"), *GrabbedObject.GetActor()->GetName())
+		UPrimitiveComponent* GrabbedObjectPC = Cast<UPrimitiveComponent>(GrabbedObject->GetRootComponent());
+		PhysicsHandle->GrabComponentAtLocation(GrabbedObjectPC, NAME_None, GrabbedObject->GetActorLocation());
+
+		UE_LOG(LogTemp, Warning, TEXT("%s grabbed"), *GrabbedObject->GetName())
 	}
 	else{UE_LOG(LogTemp, Warning, TEXT("No object within reach"))}
 }
 
 void UGrabber::Release()
 {
-	FHitResult GrabbedObject = GetFirstPhysicsBodyInReach();
-	if (GrabbedObject.GetActor())
+	AActor* GrabbedObject = GetFirstPhysicsBodyInReach();
+	if (GrabbedObject)
 	{
-		///...Attach
-		UE_LOG(LogTemp, Warning, TEXT("%s releasd"), *GrabbedObject.GetActor()->GetName())
+		PhysicsHandle->ReleaseComponent();
+		UE_LOG(LogTemp, Warning, TEXT("%s releasd"), *GrabbedObject->GetName())
 	}
 }

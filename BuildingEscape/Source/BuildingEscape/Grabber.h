@@ -28,17 +28,27 @@ public:
 
 private:
 	//Length of line trace
-	float Reach = 100.f;
+	UPROPERTY(EditAnywhere)float Reach = 200.f;
 
-	UPhysicsHandleComponent* PhysicsHandle = NULL;
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 
-	UInputComponent* InputComponent = NULL;
+	UInputComponent* InputComponent = nullptr;
+
+	AActor* GrabbedObject = nullptr;
+
+	struct TraceInfo
+	{
+		FVector StartPoint;
+		FVector EndPoint;
+	};
 
 	void FindPhysicsHandleComponent();
 
 	void FindAndSortInput();
 
-	const FHitResult GetFirstPhysicsBodyInReach() const;
+	const TraceInfo GetLineTrace() const;
+
+	AActor* GetFirstPhysicsBodyInReach() const;
 
 	void Grab();
 
