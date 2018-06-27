@@ -32,12 +32,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// if the physics handle component is attached
-	// move grabbed object every frame
-	TraceInfo CurrentTrace = GetLineTrace();
-
-	if (PhysicsHandle->GrabbedComponent) 
+	/// if the physics handle component is attached
+	/// move grabbed object every frame
+	if (PhysicsHandle->GetGrabbedComponent()) 
 	{
+		TraceInfo CurrentTrace = GetLineTrace();
 		PhysicsHandle->SetTargetLocationAndRotation(CurrentTrace.EndPoint, CurrentTrace.Rotation);
 	}
 
@@ -102,7 +101,7 @@ void UGrabber::Grab()
 	AActor* GrabbedObject = GetFirstPhysicsBodyInReach().GetActor();
 	if (GrabbedObject)
 	{
-		PhysicsHandle->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedObject->GetActorLocation(),GrabbedObject->GetActorRotation()); ///GrabbedObject->GetActorRotation()
+		PhysicsHandle->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedObject->GetActorLocation(),GrabbedObject->GetActorRotation());
 
 		UE_LOG(LogTemp, Warning, TEXT("%s grabbed"), *GrabbedObject->GetName())
 	}
