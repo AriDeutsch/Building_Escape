@@ -34,10 +34,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	// if the physics handle component is attached
 	// move grabbed object every frame
-	GrabbedObject = GetFirstPhysicsBodyInReach();
-	if (GrabbedObject)
+	TraceInfo CurrentTrace = GetLineTrace();
+
+	if (PhysicsHandle->GrabbedComponent) 
 	{
-		PhysicsHandle->SetTargetLocation((GetLineTrace().EndPoint-GetLineTrace().StartPoint)/2);
+		PhysicsHandle->SetTargetLocationAndRotation(CurrentTrace.EndPoint, CurrentTrace.Rotation);
 	}
 
 }
@@ -67,20 +68,19 @@ void UGrabber::FindAndSortInput()
 const   UGrabber::TraceInfo UGrabber::GetLineTrace() const
 {
 	///Initialise variables
-	FRotator playerViewRot;
-	TraceInfo Trace{ FVector(0.f,0.f,0.f), FVector(0.f,0.f,0.f) };
+	TraceInfo Trace{ FVector(0.f,0.f,0.f), FVector(0.f,0.f,0.f), FRotator(0.f,0.f,0.f) };
 	
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
 		RETURN_RESULT Trace.StartPoint,
-		RETURN_RESULT playerViewRot
+		RETURN_RESULT Trace.Rotation
 	);
 
-	Trace.EndPoint = Trace.StartPoint + Reach * playerViewRot.Vector();
+	Trace.EndPoint = Trace.StartPoint + Reach * Trace.Rotation.Vector();
 
 	return Trace;
 }
 
-AActor* UGrabber::GetFirstPhysicsBodyInReach() const
+FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 {
 	//return variable
 	FHitResult hitResult;
@@ -93,17 +93,16 @@ AActor* UGrabber::GetFirstPhysicsBodyInReach() const
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
 	);
-	return hitResult.GetActor();
+	return hitResult;
 }
 
 void UGrabber::Grab()
 {
-	AActor* GrabbedObject = GetFirstPhysicsBodyInReach();
+	UPrimitiveComponent* GrabbedComponent = GetFirstPhysicsBodyInReach().GetComponent();
+	AActor* GrabbedObject = GetFirstPhysicsBodyInReach().GetActor();
 	if (GrabbedObject)
 	{
-		///...Attach
-		UPrimitiveComponent* GrabbedObjectPC = Cast<UPrimitiveComponent>(GrabbedObject->GetRootComponent());
-		PhysicsHandle->GrabComponentAtLocation(GrabbedObjectPC, NAME_None, GrabbedObject->GetActorLocation());
+		PhysicsHandle->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedObject->GetActorLocation(),GrabbedObject->GetActorRotation()); ///GrabbedObject->GetActorRotation()
 
 		UE_LOG(LogTemp, Warning, TEXT("%s grabbed"), *GrabbedObject->GetName())
 	}
@@ -112,10 +111,5 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	AActor* GrabbedObject = GetFirstPhysicsBodyInReach();
-	if (GrabbedObject)
-	{
-		PhysicsHandle->ReleaseComponent();
-		UE_LOG(LogTemp, Warning, TEXT("%s releasd"), *GrabbedObject->GetName())
-	}
+	PhysicsHandle->ReleaseComponent();
 }

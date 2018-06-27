@@ -28,7 +28,7 @@ public:
 
 private:
 	//Length of line trace
-	UPROPERTY(EditAnywhere)float Reach = 200.f;
+	UPROPERTY(EditAnywhere)float Reach = 150.f;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 
@@ -40,6 +40,7 @@ private:
 	{
 		FVector StartPoint;
 		FVector EndPoint;
+		FRotator Rotation;
 	};
 
 	void FindPhysicsHandleComponent();
@@ -48,7 +49,7 @@ private:
 
 	const TraceInfo GetLineTrace() const;
 
-	AActor* GetFirstPhysicsBodyInReach() const;
+	FHitResult GetFirstPhysicsBodyInReach() const;
 
 	void Grab();
 
