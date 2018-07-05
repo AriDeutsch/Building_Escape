@@ -2,6 +2,7 @@
 
 #include "OpenDoor.h"
 #include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
 #include "Gameframework/Actor.h"
 
 // Sets default values for this component's properties
@@ -19,9 +20,8 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
 	Owner = GetOwner();
-	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+	if (!PressurePlate)UE_LOG(LogTemp, Error, TEXT("No Pressure Plate initialised"));
 }
 
 
@@ -29,35 +29,58 @@ void UOpenDoor::BeginPlay()
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (PressurePlate->IsOverlappingActor(ActorThatOpens))
+	if (GetTotalMassOnPlate() > RequiredMass)
 	{
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+		if (ResetTrigger->IsOverlappingActor(GetWorld()->GetFirstPlayerController()->GetPawn()))ResetDoorTrigger();
 	}
+	else CloseDoor();
+}
 
-	//Check if time to close door
-	else if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime >= DoorCloseDelay)
+float UOpenDoor::GetTotalMassOnPlate()
+{
+	float mass = 0.f;
+	TArray<AActor*> theActors;
+	if (!PressurePlate) {return mass;}
+	PressurePlate->GetOverlappingActors(theActors);
+	for (int32 i = 0; i < theActors.Num(); ++i)
 	{
-		CloseDoor();
+		///UActorComponent* comp = theActors[i]->FindComponentByClass<UPrimitiveComponent>();
+		UActorComponent* comp = theActors[i]->GetComponentByClass(UPrimitiveComponent::StaticClass());
+		UPrimitiveComponent* comp1 = Cast<UPrimitiveComponent>(comp);
+		mass += comp1->GetMass();
 	}
-	
+	return mass;
+}
+
+
+
+void UOpenDoor::ResetDoorTrigger()
+{
+	TArray<AActor*> theActors;
+	if (PressurePlate)PressurePlate->GetOverlappingActors(theActors);
+	for (int32 i = 0; i < theActors.Num(); ++i)
+	{
+		theActors[i]->SetActorLocation(ResetLocations[i]);
+	}
 }
 
 
 void UOpenDoor::OpenDoor()
 {
-
-	z = sinf((SwingAngle*2*PI/360.f) / 2.f);
-	w = cosf((SwingAngle*2*PI/360.f) / 2.f);
-	Owner->SetActorRotation(FQuat(0.f,0.f,z,w));
-	//Owner->SetActorRotation(FRotator(0.f, SwingAngle, 0.f));
-	
+	///z = sinf((SwingAngle*2*PI/360.f) / 2.f);
+	///w = cosf((SwingAngle*2*PI/360.f) / 2.f);
+	///Owner->SetActorRotation(FQuat(0.f,0.f,z,w));
+	//Owner->SetActorRotation(OpenedConfig);
+	OpenRequest.Broadcast();
 }
 
 
 //Changes the sign of the angle of the OpenDoor function
 void UOpenDoor::CloseDoor()
 {
-	Owner->SetActorRotation(FQuat(0.f, 0.f, 0.f, 1.f));
-	//Or I can use: Owner->SetActorRotation(FRotator(0.f, 0.f, 0.f));
+	///Owner->SetActorRotation(FQuat(0.f, 0.f, 0.f, 1.f));
+	//Owner->SetActorRotation(ClosedConfig);
+	CloseRequest.Broadcast();
 }

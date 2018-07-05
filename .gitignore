@@ -13,4 +13,5 @@ BuildingEscape/Content/StarterContent/HDRI
 #####################
 # VS Re-generatable #
 #####################
-BuildingEscape/.vs/
+*.vs
+*.sln

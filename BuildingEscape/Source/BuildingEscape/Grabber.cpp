@@ -6,7 +6,6 @@
 
 #define RETURN_RESULT
 
-
 // Sets default values for this component's properties
 UGrabber::UGrabber()
 {
@@ -15,7 +14,6 @@ UGrabber::UGrabber()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
@@ -23,25 +21,19 @@ void UGrabber::BeginPlay()
 
 	FindPhysicsHandleComponent();
 	FindAndSortInput();
-	
 }
-
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	/// if the physics handle component is attached
-	/// move grabbed object every frame
+	// check if the physics handle component is attached
 	if (PhysicsHandle->GetGrabbedComponent()) 
 	{
-		TraceInfo CurrentTrace = GetLineTrace();
+		TraceInfo CurrentTrace = GetLineTraceCoordinates();
 		PhysicsHandle->SetTargetLocationAndRotation(CurrentTrace.EndPoint, CurrentTrace.Rotation);
 	}
-
 }
-
 
 void UGrabber::FindPhysicsHandleComponent()
 {
@@ -54,19 +46,15 @@ void UGrabber::FindAndSortInput()
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s actor has an input component"), *GetOwner()->GetName())
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s actor has no input component attached"), *GetOwner()->GetName())
-	}
+	else{UE_LOG(LogTemp, Error, TEXT("%s actor has no input component attached"), *GetOwner()->GetName())}
 }
 
-const   UGrabber::TraceInfo UGrabber::GetLineTrace() const
+const   UGrabber::TraceInfo UGrabber::GetLineTraceCoordinates() const
 {
-	///Initialise variables
+	///Initialise struct instance
 	TraceInfo Trace{ FVector(0.f,0.f,0.f), FVector(0.f,0.f,0.f), FRotator(0.f,0.f,0.f) };
 	
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
@@ -84,11 +72,11 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 	//return variable
 	FHitResult hitResult;
 
-	/// Ray-cast out to 'LineTraceEndPoint' on every tick
+	TraceInfo LineTrace = GetLineTraceCoordinates();
 	GetWorld()->LineTraceSingleByObjectType(
 		RETURN_RESULT hitResult,
-		GetLineTrace().StartPoint,
-		GetLineTrace().EndPoint,
+		LineTrace.StartPoint,
+		LineTrace.EndPoint,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
 	);
@@ -97,18 +85,17 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 
 void UGrabber::Grab()
 {
+	///We need to get the primitive component(defines geometry of actor) of the actor hit by line trace, as well as the actor itself
 	UPrimitiveComponent* GrabbedComponent = GetFirstPhysicsBodyInReach().GetComponent();
-	AActor* GrabbedObject = GetFirstPhysicsBodyInReach().GetActor();
-	if (GrabbedObject)
+	if (GrabbedComponent)
 	{
-		PhysicsHandle->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedObject->GetActorLocation(),GrabbedObject->GetActorRotation());
-
-		UE_LOG(LogTemp, Warning, TEXT("%s grabbed"), *GrabbedObject->GetName())
+		AActor* GrabbedActor = GrabbedComponent->GetOwner();
+		if (PhysicsHandle)PhysicsHandle->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
+		UE_LOG(LogTemp, Warning, TEXT("%s component grabbed"), *GrabbedActor->GetName())
 	}
-	else{UE_LOG(LogTemp, Warning, TEXT("No object within reach"))}
 }
 
 void UGrabber::Release()
 {
-	PhysicsHandle->ReleaseComponent();
+	if (PhysicsHandle)PhysicsHandle->ReleaseComponent();
 }

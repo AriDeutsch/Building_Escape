@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Grabber.generated.h"
 
@@ -28,7 +29,7 @@ public:
 
 private:
 	//Length of line trace
-	UPROPERTY(EditAnywhere)float Reach = 150.f;
+	UPROPERTY(EditAnywhere)float Reach = 170.f;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 
@@ -47,7 +48,7 @@ private:
 
 	void FindAndSortInput();
 
-	const TraceInfo GetLineTrace() const;
+	const TraceInfo GetLineTraceCoordinates() const;
 
 	FHitResult GetFirstPhysicsBodyInReach() const;
 
