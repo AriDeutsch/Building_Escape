@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TriggerVolume.h"
+#include "Engine/TriggerBox.h"
 #include "Components/ActorComponent.h"
 #include "OpenDoor.generated.h"
 
@@ -27,21 +28,28 @@ protected:
 	UPROPERTY(BlueprintAssignable)FDoorEvent OpenRequest;
 	UPROPERTY(BlueprintAssignable)FDoorEvent CloseRequest;
 
+	/*Rotation of door when opened*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)FRotator OpenedConfig = FRotator(0.f, 0.f, 0.f);
+	/*Rotation of door when closed*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)FRotator ClosedConfig = FRotator(0.f, 0.f, 0.f);
+	/*Which object will act as a door*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)AActor * Door = nullptr;
+	UPROPERTY(EditAnywhere, BluePrintReadOnly)float DoorSwingTime = 1.f;
+	
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	
 		
 private:
 	
 	float GetTotalMassOnPlate();
 
-	void ResetDoorTrigger();
+	void ResetTriggeringActors();
 
-	/*Rotation of door when opened*/
-	UPROPERTY(EditAnywhere)FRotator OpenedConfig = FRotator(0.f, 0.f, 0.f);
-	/*Rotation of door when closed*/
-	UPROPERTY(EditAnywhere)FRotator ClosedConfig = FRotator(0.f, 0.f, 0.f);
+	
 	
 	/*
 	float z, w;
@@ -54,7 +62,8 @@ private:
 	*/
 	
 	/*Overlap with required total mass will open the door*/
-	UPROPERTY(EditAnywhere)ATriggerVolume * PressurePlate = nullptr;
+	//ATriggerBox * PressurePlate =  Cast<ATriggerBox>(GetOwner());
+	AActor * PressurePlate = GetOwner();
 
 	/*Overlap with pawn will move the relevant actor(s) out of pressure plate trigger, thus closing door*/
 	UPROPERTY(EditAnywhere)ATriggerVolume * ResetTrigger = nullptr;
@@ -62,11 +71,7 @@ private:
 	/*Define where the relevant actor(s) will reset to after the respective door closes*/
 	UPROPERTY(EditAnywhere)TArray<FVector> ResetLocations;
 
-	UPROPERTY(EditAnywhere)float DoorCloseDelay = 0.5f;
+	
 
 	UPROPERTY(EditAnywhere)float RequiredMass = 38.f;
-	
-	float LastDoorOpenTime;
-
-	AActor* Owner;
 };
