@@ -71,10 +71,10 @@ void UOpenDoor::ResetTriggeringActors()
 
 void UOpenDoor::OpenDoor()
 {
-	//if(Door)OpenRequest.Broadcast();
+	if(Door)OpenRequest.Broadcast();
 }
 
 void UOpenDoor::CloseDoor()
 {
-	//if(Door)CloseRequest.Broadcast();
+	if(Door)CloseRequest.Broadcast();
 }

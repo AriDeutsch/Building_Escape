@@ -8,7 +8,7 @@
 #include "Components/ActorComponent.h"
 #include "OpenDoor.generated.h"
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorAccess);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
 
 
 
@@ -25,8 +25,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	//UPROPERTY(BlueprintAssignable)FDoorAccess OpenRequest;
-	//UPROPERTY(BlueprintAssignable)FDoorAccess CloseRequest;
+	UPROPERTY(BlueprintAssignable)FDoorEvent OpenRequest;
+	UPROPERTY(BlueprintAssignable)FDoorEvent CloseRequest;
 
 	/*Rotation of door when fully opened*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)FRotator OpenedConfig = FRotator(0.f, 0.f, 0.f);

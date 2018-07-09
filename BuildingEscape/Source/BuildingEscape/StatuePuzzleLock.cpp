@@ -18,8 +18,14 @@ UStatuePuzzleLock::UStatuePuzzleLock()
 void UStatuePuzzleLock::BeginPlay()
 {
 	Super::BeginPlay();
+
+	///When puzzle has been solved, all statues should return to original locations/rotations. Thus we must store those locations when play starts
+	for (int i = 0; i < AllStatues.Num(); ++i)
+	{
+		ResetLocations.Add(AllStatues[i]->GetActorLocation());
+		ResetRotations.Add(AllStatues[i]->GetActorRotation());
+	}
 	CreateNewPermutation();
-	
 }
 
 // Called every frame
@@ -27,24 +33,28 @@ void UStatuePuzzleLock::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	
+	LightColourEvaluation();
 	if (ResetTrigger)
 	{
+		///We want to reset the puzzle if the player solves it and escapes. In that case, player will hit trigger
 		if (ResetTrigger->IsOverlappingActor(GetWorld()->GetFirstPlayerController()->GetPawn()))
 		{
-			///We want to reset the puzzle if the person solves it and escapes
-			ResetPuzzle();
+			for (int i = 0; i < AllStatues.Num(); i++) 
+			{
+				//Only reset if it needs to be.
+				if(!AllStatues[i]->GetActorLocation().FVector::Equals(ResetLocations[i], 5.f))ResetPuzzle();
+			}
 		}
-		else LightColourEvaluation();
+		
 	}
 }
 
 void UStatuePuzzleLock::CreateNewPermutation()
 {
-	StatuesToGuess.SetNumZeroed(LightsAndTriggers.Num());
+	StatuesToGuess.Empty();
 	for (int i = 0; i < LightsAndTriggers.Num(); ++i)
 	{
-		StatuesToGuess[i] = AllStatues[FMath::RandRange(0, AllStatues.Num() - 1)];
+		StatuesToGuess.Add(AllStatues[FMath::RandRange(0, AllStatues.Num() - 1)]);
 		UE_LOG(LogTemp,Warning,TEXT("statue with material %s"), *StatuesToGuess[i]->FindComponentByClass<UPrimitiveComponent>()->GetMaterial(0)->GetName())
 	}
 }
@@ -82,23 +92,13 @@ void UStatuePuzzleLock::LightColourEvaluation()
 
 void UStatuePuzzleLock::ResetPuzzle()
 {
-	for (int i = 0; i < LightsAndTriggers.Num(); ++i)
+	for (int i = 0; i < AllStatues.Num();++i)
 	{
-		TArray<AActor*> statueInTrigger;
-		if (!LightsAndTriggers[i].theTrigger || !ResetLocations.IsValidIndex(i))return;
-		LightsAndTriggers[i].theTrigger->GetOverlappingActors(statueInTrigger);
-		for (int32 j = 0; j < statueInTrigger.Num(); ++j)
-		{
-			statueInTrigger[j]->SetActorLocation(ResetLocations[i]);
-			if (i == (LightsAndTriggers.Num()-1))CreateNewPermutation();
-		}
-		/*else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Not enough reset locations"))
-			return;
-		}*/
+		AllStatues[i]->SetActorLocation(ResetLocations[i]);
+		AllStatues[i]->SetActorRotation(ResetRotations[i]);
+		
 	}
-	
+	CreateNewPermutation();
 }
 
 void UStatuePuzzleLock::SetLightGreen(ASpotLight * light)

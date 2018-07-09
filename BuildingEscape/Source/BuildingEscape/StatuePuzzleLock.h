@@ -43,8 +43,8 @@ protected:
 	/*Rotation of door when fully closed*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)FRotator ClosedConfig = FRotator(0.f, 0.f, 0.f);
 
-	UPROPERTY(EditAnywhere, BluePrintReadOnly)float DoorOpenSwingTime = 1.f;
-	UPROPERTY(EditAnywhere, BluePrintReadOnly)float DoorCloseSwingTime = 1.f;
+	UPROPERTY(EditAnywhere, BluePrintReadOnly)float DoorOpenSwingTime = 4.f;
+	UPROPERTY(EditAnywhere, BluePrintReadOnly)float DoorCloseSwingTime = 0.5f;
 
 public:	
 	// Called every frame
@@ -64,7 +64,8 @@ private:
 
 	TArray<AActor*> StatuesToGuess;
 
-	UPROPERTY(EditAnywhere)TArray<FVector> ResetLocations;
+	TArray<FVector> ResetLocations;
+	TArray<FRotator> ResetRotations;
 
 	void LightColourEvaluation();
 
