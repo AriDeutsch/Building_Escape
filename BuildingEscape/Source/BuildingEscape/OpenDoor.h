@@ -8,14 +8,15 @@
 #include "Components/ActorComponent.h"
 #include "OpenDoor.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent)
-;
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorAccess);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
 {
 	GENERATED_BODY()
-
+		
 public:	
 	// Sets default values for this component's properties
 	UOpenDoor();
@@ -23,8 +24,9 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	UPROPERTY(BlueprintAssignable)FDoorEvent OpenRequest;
-	UPROPERTY(BlueprintAssignable)FDoorEvent CloseRequest;
+
+	//UPROPERTY(BlueprintAssignable)FDoorAccess OpenRequest;
+	//UPROPERTY(BlueprintAssignable)FDoorAccess CloseRequest;
 
 	/*Rotation of door when fully opened*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)FRotator OpenedConfig = FRotator(0.f, 0.f, 0.f);

@@ -29,7 +29,7 @@ public:
 
 private:
 	//Length of line trace
-	UPROPERTY(EditAnywhere)float Reach = 170.f;
+	UPROPERTY(EditAnywhere)float Reach = 130.f;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 

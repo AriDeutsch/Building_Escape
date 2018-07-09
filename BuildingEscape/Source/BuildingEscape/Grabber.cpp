@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Grabber.h"
-#include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 
 #define RETURN_RESULT
@@ -91,7 +90,6 @@ void UGrabber::Grab()
 	{
 		AActor* GrabbedActor = GrabbedComponent->GetOwner();
 		if (PhysicsHandle)PhysicsHandle->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
-		UE_LOG(LogTemp, Warning, TEXT("%s component grabbed"), *GrabbedActor->GetName())
 	}
 }
 
