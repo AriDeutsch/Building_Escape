@@ -51,10 +51,18 @@ void UStatuePuzzleLock::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UStatuePuzzleLock::CreateNewPermutation()
 {
+	TArray<int> PrevRandNum;
+	int randNum;
+	PrevRandNum.SetNumZeroed(LightsAndTriggers.Num());
+	
+
 	StatuesToGuess.Empty();
 	for (int i = 0; i < LightsAndTriggers.Num(); ++i)
 	{
-		StatuesToGuess.Add(AllStatues[FMath::RandRange(0, AllStatues.Num() - 1)]);
+		PrevRandNum[i] = -1;
+		do{ randNum = FMath::RandRange(0, AllStatues.Num() - 1);} while (PrevRandNum.Contains(randNum));
+		PrevRandNum[i] = randNum;
+		StatuesToGuess.Add(AllStatues[randNum]);
 		UE_LOG(LogTemp,Warning,TEXT("statue with material %s"), *StatuesToGuess[i]->FindComponentByClass<UPrimitiveComponent>()->GetMaterial(0)->GetName())
 	}
 }
